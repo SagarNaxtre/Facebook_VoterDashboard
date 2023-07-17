@@ -1,0 +1,33 @@
+<div class="button-container">
+  
+  <button class="excel" nz-button nzType="primary" (click)="generateExcelFile()">Export to Excel</button>
+</div>
+
+<button  nz-button nzType="primary">Delete</button>
+<nz-table #basicTable [nzData]="respone"  
+#rowSelectionTable [nzFrontPagination]="false"
+(nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+>
+    <thead>
+      <tr>
+        <th [nzChecked]="checked" [nzIndeterminate]="indeterminate" (nzCheckedChange)="onAllChecked($event)"></th>
+        <th>Id</th>	
+        <th>Mobile_number</th>	
+        <th>Reply_text</th>	
+        <th>Timestamp</th>
+       </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of basicTable.data">
+        <td
+            [nzChecked]="setOfCheckedId.has(data.id)"
+            [nzDisabled]="data.disabled"
+            (nzCheckedChange)="onItemChecked(data.id, $event)"
+          ></td>
+        <td>{{ data?.id }}</td>
+        <td>{{ data?.mobile_number }}</td>
+        <td>{{ data?.reply_text }}</td>
+        <td>{{ data?.timestamp1  }}</td>
+      </tr>
+    </tbody>
+  </nz-table>

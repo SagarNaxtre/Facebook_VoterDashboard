@@ -1,0 +1,22 @@
+<nz-table #basicTable [nzData]="respone"  
+
+>
+    <thead>
+      <tr>
+        <th>Id</th>	
+        <th>Mobile_number</th>	
+        <th>Reply_text</th>	
+        <th>Timestamp</th>
+        <th>Action</th>
+       </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of basicTable.data">
+        <td>{{ data?.id }}</td>
+        <td>{{ data?.mobile_number }}</td>
+        <td>{{ data?.reply_text }}</td>
+        <td>{{ data?.timestamp1  }}</td>
+        <td> <button nz-button nzType="primary">Restore</button> </td>
+      </tr>
+    </tbody>
+  </nz-table>
