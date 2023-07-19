@@ -1,13 +1,23 @@
-<nz-table #basicTable [nzData]="respone"  
 
->
+<form [formGroup]="trashForm">
+
+  <div class="button-container">
+
+    <label class="text"> Select date range :- </label>
+    <nz-range-picker [nzShowTime]="true" [nzRanges]="ranges" formControlName="date_range"></nz-range-picker>&nbsp;
+    <button nz-button nzType="primary" 
+    (click)="filterDataDatewise()">Filter</button>&nbsp; &nbsp;
+
+  </div>
+  <button nz-button nzType="primary"  (click)="movetoreport()" >Restore</button>
+
+<nz-table #basicTable [nzData]="filteredData" [nzFrontPagination]="false">
     <thead>
       <tr>
         <th>Id</th>	
         <th>Mobile_number</th>	
         <th>Reply_text</th>	
         <th>Timestamp</th>
-        <th>Action</th>
        </tr>
     </thead>
     <tbody>
@@ -16,7 +26,7 @@
         <td>{{ data?.mobile_number }}</td>
         <td>{{ data?.reply_text }}</td>
         <td>{{ data?.timestamp1  }}</td>
-        <td> <button nz-button nzType="primary">Restore</button> </td>
       </tr>
     </tbody>
   </nz-table>
+</form>

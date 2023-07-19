@@ -8,7 +8,8 @@ import { endpoints } from '../core/endpoint';
 })
 export class PollService {
 
-  constructor(private http: HttpClient) { 
-
+  constructor(private http: HttpClient) {}
+  message(data: any){
+    return this.http.post(environment.api_base_url+ endpoints.pollmessages , data)
   }
 }

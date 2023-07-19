@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup , Validators } from '@angular/forms';
 import { ReportService } from 'src/app/services/report.service';
 import * as XLSX from 'xlsx';
 import * as moment from 'moment';
+import { endOfMonth } from 'date-fns';
 
 @Component({
   selector: 'app-report',
@@ -10,71 +11,44 @@ import * as moment from 'moment';
   styleUrls: ['./report.component.scss']
 })
 export class ReportComponent implements OnInit {
-respone : any
-checked = false;
-loading = false;
-indeterminate = false;
-listOfData:  readonly any[] = [];
-listOfCurrentPageData: readonly any[] = [];
-setOfCheckedId = new Set<number>();
- 
-  constructor(private reportService: ReportService, private formBuilder: FormBuilder){
-
+ respone : any =[];
+ loading = false;
+ ranges = { Today: [new Date(), new Date()], 'This Month': [new Date(), endOfMonth(new Date())] };
+ reportForm: FormGroup;
+ PageIndex = 1;
+ isLoadingOne = false;
+ filteredData: any =[];
+  AllReport = {
+  Id: '',
+  Mobile_number: '',
+  Reply_text: '',
+  timestamp1: ''
+};
+  constructor(private reportService: ReportService, private fb: FormBuilder){
+    this.reportForm = fb.group({ 
+      date_range: [null, Validators.required], 
+      
+     })
   }
+
   ngOnInit(): void {
-    this.responseData();
-   
+    this.responseData(); 
   }
 
+  
   responseData(){
     this.reportService.responseData().subscribe((res : any) =>{
       this.respone = res.data;
       this.respone.map((item:any) =>{
-        item.timestamp1 = moment( new Date(item.timestamp).getTime() + 5 * 30 * 60 * 1000).format("MM-DD-YYYY HH:mm:ss")
+        item.timestamp1 = moment( new Date(item.timestamp).getTime() + 5 * 30 * 60 * 1000).format("YYYY/MM/DD HH:mm:ss")
       })
-      console.log(res);
-      
-    })
-  }
-  onCurrentPageDataChange(listOfCurrentPageData: readonly any[]): void {
-    this.listOfCurrentPageData = listOfCurrentPageData;
-    this.refreshCheckedStatus();
-  }
-  updateCheckedSet(id: number, checked: boolean): void {
-    if (checked) {
-      this.setOfCheckedId.add(id);
-    } else {
-      this.setOfCheckedId.delete(id);
-    }
-  }
-
-  refreshCheckedStatus(): void {
-    const listOfEnabledData = this.listOfCurrentPageData.filter(({ disabled }) => !disabled);
-    this.checked = listOfEnabledData.every(({ id }) => this.setOfCheckedId.has(id));
-    this.indeterminate = listOfEnabledData.some(({ id }) => this.setOfCheckedId.has(id)) && !this.checked;
-  }
-
-  onItemChecked(id: number, checked: boolean): void {
-    this.updateCheckedSet(id, checked);
-    this.refreshCheckedStatus();
-  }
-
-  onAllChecked(checked: boolean): void {
-    this.listOfCurrentPageData
-      .filter(({ disabled }) => !disabled)
-      .forEach(({ id }) => this.updateCheckedSet(id, checked));
-    this.refreshCheckedStatus();
-  }
-
-  sendRequest(): void {
-    this.loading = true;
-    const requestData = this.listOfData.filter(data => this.setOfCheckedId.has(data.id));
-    console.log(requestData);
-    setTimeout(() => {
-      this.setOfCheckedId.clear();
-      this.refreshCheckedStatus();
-      this.loading = false;
-    }, 1000);
+      this.respone = this.respone.filter((item:any) => item.is_deleted == 0)
+      this.respone = this.respone.sort((a: any, b: any) => {
+        return <any>new Date(b.Date) - <any>new Date(a.Date);
+      });
+      this.filteredData = this.respone
+      this.isLoadingOne = false
+      })
   }
 
   generateExcelFile() {
@@ -86,8 +60,7 @@ setOfCheckedId = new Set<number>();
         genarateObj.Id = item.id;
         genarateObj.Mobile_number = item.mobile_number;
         genarateObj.Reply_text = item.reply_text;
-        genarateObj.Timestamp = moment(item.timestamp1).format("DD/MM/YY HH:mm:ss");
-  
+        genarateObj.Timestamp = moment(item.timestamp1).format("YYYY/MM/DD HH:mm:ss");
         data.push(genarateObj);
         genarateObj = {};
       });
@@ -100,4 +73,35 @@ setOfCheckedId = new Set<number>();
     XLSX.writeFile(wb, `response.xlsx`);
   }
   
+  movetotrash(){
+    const reqObj = {
+       params : 1,
+    } 
+    this.reportService.movetotrash(reqObj).subscribe((res : any) =>{
+      console.log(res);
+      window.location.reload();
+
+    })
+  }
+
+  
+  filterDataDatewise() {
+    console.log(this.reportForm.value.date_range);
+    this.PageIndex = 1;
+    this.filteredData = this.respone.filter((item: any) =>
+      new Date(item.timestamp1) >= new Date(this.reportForm.value.date_range[0]) &&
+      new Date(item.timestamp1) <= new Date(this.reportForm.value.date_range[1])
+    );
+    console.log(this.filteredData);
+    this.generateTotalReport(this.filteredData);
+  }
+  generateTotalReport(data : any){
+    data.map((item: any) => {
+       this.AllReport.Id = item.id,
+       this.AllReport.Mobile_number = item.mobile_number,
+       this.AllReport.Reply_text =  item.reply_text,
+       this.AllReport.timestamp1 = item.timestamp1
+     
+    });
+  }
 }

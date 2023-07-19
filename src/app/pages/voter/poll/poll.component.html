@@ -1,8 +1,9 @@
 <form [formGroup]="pollForm">
-    <input nzSize = "default" nzRight nz-input formControlName = "id" placeholder="Enter Template Id" />&nbsp; 
-    <button nz-button nzType="primary">Send</button>&nbsp;&nbsp;
+    <label for="">Enter Template Name :- </label>
+    <input nzSize = "default" nzRight nz-input formControlName = "templateName" placeholder="Template name" />&nbsp; 
+    <button nz-button nzType="primary" (click) ="sendmessage()">Send</button>&nbsp;&nbsp;
      <br> <br>
-    <input type="file" accept=".csv"  (change)="fileChangeListener($event)">
+    <input type="file" accept=".csv" formControlName = "fileupload" (change)="fileChangeListener($event)">
     <button nz-button nzType="primary" (click)="uloadCsvFileData()" [nzLoading]="isLoadingOne">Click To Import</button>&nbsp;&nbsp;
 
     

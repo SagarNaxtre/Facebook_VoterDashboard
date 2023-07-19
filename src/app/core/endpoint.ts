@@ -1,3 +1,4 @@
 export const endpoints = {
-    "data" : "response"
+    "data" : "response",
+    "pollmessages" : "send-message/"
 }

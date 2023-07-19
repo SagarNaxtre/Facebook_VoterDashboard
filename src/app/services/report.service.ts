@@ -12,4 +12,7 @@ export class ReportService {
   responseData(){
     return this.http.get(environment.api_base_url+ endpoints.data)
   }
+  movetotrash(data : any){
+    return this.http.get(`${environment.api_base_url}move-to-trash/${data.params}`)
+  }
 }
