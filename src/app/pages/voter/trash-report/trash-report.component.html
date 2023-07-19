@@ -4,7 +4,7 @@
   <div class="button-container">
 
     <label class="text"> Select date range :- </label>
-    <nz-range-picker [nzShowTime]="true" [nzRanges]="ranges" formControlName="date_range"></nz-range-picker>&nbsp;
+    <nz-range-picker [nzRanges]="ranges" formControlName="date_range"></nz-range-picker>&nbsp;
     <button nz-button nzType="primary" 
     (click)="filterDataDatewise()">Filter</button>&nbsp; &nbsp;
 
@@ -25,7 +25,7 @@
         <td>{{ data?.id }}</td>
         <td>{{ data?.mobile_number }}</td>
         <td>{{ data?.reply_text }}</td>
-        <td>{{ data?.timestamp1  }}</td>
+        <td>{{ data?.timestamp}}</td>
       </tr>
     </tbody>
   </nz-table>

@@ -22,7 +22,7 @@ export class ReportComponent implements OnInit {
   Id: '',
   Mobile_number: '',
   Reply_text: '',
-  timestamp1: ''
+  timestamp: ''
 };
   constructor(private reportService: ReportService, private fb: FormBuilder){
     this.reportForm = fb.group({ 
@@ -37,30 +37,32 @@ export class ReportComponent implements OnInit {
 
   
   responseData(){
-    this.reportService.responseData().subscribe((res : any) =>{
+    this.reportService.responseData().subscribe((res: any) => {
       this.respone = res.data;
-      this.respone.map((item:any) =>{
-        item.timestamp1 = moment( new Date(item.timestamp).getTime() + 5 * 30 * 60 * 1000).format("YYYY/MM/DD HH:mm:ss")
-      })
-      this.respone = this.respone.filter((item:any) => item.is_deleted == 0)
+      this.respone = this.respone.filter((item: any) => item.is_deleted == 0);
       this.respone = this.respone.sort((a: any, b: any) => {
         return <any>new Date(b.Date) - <any>new Date(a.Date);
       });
-      this.filteredData = this.respone
-      this.isLoadingOne = false
-      })
+    
+       this.respone.forEach((item: any) => {
+        item.timestamp = moment(item.timestamp, 'M/D/YYYY, h:mm:ss A').format('YYYY/MM/DD');
+      });
+    
+      this.filteredData = this.respone;
+      this.isLoadingOne = false;
+    });
   }
 
   generateExcelFile() {
     let data: any[] = [];
     let genarateObj: any = {};
   
-    if (this.respone) {
-      this.respone.map((item: any) => {
+    if (this.filteredData) {
+      this.filteredData.map((item: any) => {
         genarateObj.Id = item.id;
         genarateObj.Mobile_number = item.mobile_number;
         genarateObj.Reply_text = item.reply_text;
-        genarateObj.Timestamp = moment(item.timestamp1).format("YYYY/MM/DD HH:mm:ss");
+        genarateObj.Timestamp = moment(item.timestamp).format("YYYY/MM/DD HH:mm:ss");
         data.push(genarateObj);
         genarateObj = {};
       });
@@ -89,8 +91,8 @@ export class ReportComponent implements OnInit {
     console.log(this.reportForm.value.date_range);
     this.PageIndex = 1;
     this.filteredData = this.respone.filter((item: any) =>
-      new Date(item.timestamp1) >= new Date(this.reportForm.value.date_range[0]) &&
-      new Date(item.timestamp1) <= new Date(this.reportForm.value.date_range[1])
+      new Date(item.timestamp) >= new Date(this.reportForm.value.date_range[0]) &&
+      new Date(item.timestamp) <= new Date(this.reportForm.value.date_range[1])
     );
     console.log(this.filteredData);
     this.generateTotalReport(this.filteredData);
@@ -100,7 +102,7 @@ export class ReportComponent implements OnInit {
        this.AllReport.Id = item.id,
        this.AllReport.Mobile_number = item.mobile_number,
        this.AllReport.Reply_text =  item.reply_text,
-       this.AllReport.timestamp1 = item.timestamp1
+       this.AllReport.timestamp = item.timestamp
      
     });
   }

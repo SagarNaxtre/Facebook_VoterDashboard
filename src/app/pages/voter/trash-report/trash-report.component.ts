@@ -20,7 +20,7 @@ export class TrashReportComponent {
    Id: '',
    Mobile_number: '',
    Reply_text: '',
-   timestamp1: ''
+   timestamp: ''
  };
 
   constructor(private reportService: ReportService, private fb: FormBuilder){
@@ -36,18 +36,20 @@ export class TrashReportComponent {
   }
 
   responseData(){
-    this.reportService.responseData().subscribe((res : any) =>{
+    this.reportService.responseData().subscribe((res: any) => {
       this.respone = res.data;
-      this.respone.map((item:any) =>{
-        item.timestamp1 = moment( new Date(item.timestamp).getTime() + 5 * 30 * 60 * 1000).format("YYYY/MM/DD HH:mm:ss")
-      })
-      this.respone = this.respone.filter((item:any) => item.is_deleted == 1)
+      this.respone = this.respone.filter((item: any) => item.is_deleted == 1);
       this.respone = this.respone.sort((a: any, b: any) => {
         return <any>new Date(b.Date) - <any>new Date(a.Date);
       });
-      this.filteredData = this.respone
-      this.isLoadingOne = false
+    
+       this.respone.forEach((item: any) => {
+        item.timestamp = moment(item.timestamp, 'M/D/YYYY, h:mm:ss A').format('YYYY/MM/DD');
       });
+    
+      this.filteredData = this.respone;
+      this.isLoadingOne = false;
+    });
   }
   movetoreport(){
     const reqObj = {
@@ -64,8 +66,8 @@ export class TrashReportComponent {
     console.log(this.trashForm.value.date_range);
     this.PageIndex = 1;
     this.filteredData = this.respone.filter((item: any) =>
-      new Date(item.timestamp1) >= new Date(this.trashForm.value.date_range[0]) &&
-      new Date(item.timestamp1) <= new Date(this.trashForm.value.date_range[1])
+      new Date(item.timestamp) >= new Date(this.trashForm.value.date_range[0]) &&
+      new Date(item.timestamp) <= new Date(this.trashForm.value.date_range[1])
     );
     console.log(this.filteredData);
     this.generateTotalReport(this.filteredData);
@@ -75,7 +77,7 @@ export class TrashReportComponent {
        this.AllReport.Id = item.id,
        this.AllReport.Mobile_number = item.mobile_number,
        this.AllReport.Reply_text =  item.reply_text,
-       this.AllReport.timestamp1 = item.timestamp1
+       this.AllReport.timestamp = item.timestamp
      
     });
   }
